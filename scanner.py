@@ -28,17 +28,17 @@ COLUMN_LABELS = [
 ]
 
 
-def _build_payload(filter_field: str) -> dict:
-    """52주 신고가/신저가 쿼리 페이로드를 생성한다."""
+def _build_payload(preset: str) -> dict:
+    """52주 신고가/신저가 쿼리 페이로드를 생성한다. preset으로 스캔 유형을 지정."""
     return {
         "columns": COLUMNS,
         "filter": [
-            {"left": filter_field, "operation": "equal", "right": True},
             {"left": "Value.Traded", "operation": "greater", "right": 10_000_000},
         ],
         "options": {"lang": "en"},
         "sort": {"sortBy": "Value.Traded", "sortOrder": "desc"},
         "range": [0, 500],
+        "preset": preset,
     }
 
 
@@ -74,11 +74,11 @@ def _query(payload: dict) -> pd.DataFrame:
 
 def fetch_52w_high() -> pd.DataFrame:
     """52주 신고가 종목을 조회하여 DataFrame으로 반환한다."""
-    payload = _build_payload("High.All")
+    payload = _build_payload("new_high_in_52w")
     return _query(payload)
 
 
 def fetch_52w_low() -> pd.DataFrame:
     """52주 신저가 종목을 조회하여 DataFrame으로 반환한다."""
-    payload = _build_payload("Low.All")
+    payload = _build_payload("new_low_in_52w")
     return _query(payload)
