@@ -37,7 +37,7 @@ def _build_payload(price_filter: dict) -> dict:
             {"left": "Value.Traded", "operation": "greater", "right": 10_000_000},
         ],
         "options": {"lang": "en"},
-        "sort": {"sortBy": "Value.Traded", "sortOrder": "desc"},
+        "sort": {"sortBy": "market_cap_basic", "sortOrder": "desc"},
         "range": [0, 500],
     }
 
@@ -69,6 +69,7 @@ def _query(payload: dict) -> pd.DataFrame:
     )
 
     df.columns = COLUMN_LABELS
+    df = df.sort_values("시가총액(B USD)", ascending=False, na_position="last").reset_index(drop=True)
     return df
 
 
