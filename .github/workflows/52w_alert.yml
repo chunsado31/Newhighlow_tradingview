@@ -1,0 +1,28 @@
+name: 52W High/Low Alert
+
+on:
+  schedule:
+    # UTC 0시 = 한국시간 오전 9시, 화~토(미국 월~금 장 마감 다음날)
+    - cron: '0 0 * * 2-6'
+  workflow_dispatch: # 수동 실행 지원
+
+jobs:
+  scan-and-email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scanner and send email
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python main.py
