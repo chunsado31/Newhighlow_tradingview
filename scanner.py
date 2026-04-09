@@ -28,17 +28,17 @@ COLUMN_LABELS = [
 ]
 
 
-def _build_payload(preset: str) -> dict:
-    """52주 신고가/신저가 쿼리 페이로드를 생성한다. preset으로 스캔 유형을 지정."""
+def _build_payload(price_filter: dict) -> dict:
+    """52주 신고가/신저가 쿼리 페이로드를 생성한다."""
     return {
         "columns": COLUMNS,
         "filter": [
+            price_filter,
             {"left": "Value.Traded", "operation": "greater", "right": 10_000_000},
         ],
         "options": {"lang": "en"},
         "sort": {"sortBy": "Value.Traded", "sortOrder": "desc"},
         "range": [0, 500],
-        "preset": preset,
     }
 
 
@@ -74,11 +74,15 @@ def _query(payload: dict) -> pd.DataFrame:
 
 def fetch_52w_high() -> pd.DataFrame:
     """52주 신고가 종목을 조회하여 DataFrame으로 반환한다."""
-    payload = _build_payload("new_high_in_52w")
+    # high >= price_52_week_high (오늘 고가가 52주 최고가 이상)
+    price_filter = {"left": "high", "operation": "egreater", "right": "price_52_week_high"}
+    payload = _build_payload(price_filter)
     return _query(payload)
 
 
 def fetch_52w_low() -> pd.DataFrame:
     """52주 신저가 종목을 조회하여 DataFrame으로 반환한다."""
-    payload = _build_payload("new_low_in_52w")
+    # low <= price_52_week_low (오늘 저가가 52주 최저가 이하)
+    price_filter = {"left": "low", "operation": "eless", "right": "price_52_week_low"}
+    payload = _build_payload(price_filter)
     return _query(payload)
